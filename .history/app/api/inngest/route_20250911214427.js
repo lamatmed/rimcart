@@ -1,4 +1,4 @@
-import { inngest } from "../../../inngest/client";
+import { inngest } from "../inngest/c";
 import { syncUserCreation, syncUserDelete, syncUserUpdate } from "../inngest/functions";
 import { serve } from "inngest/next";
 
