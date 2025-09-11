@@ -1,28 +1,25 @@
 import { inngest } from "./client";
-// CREATE
+
 export const syncUserCreation = inngest.createFunction(
-  { id: 'sync-user-create' },
-  { event: 'clerk/user.created' },
-  async ({ event }) => {
-    try {
-      const { data } = event
-
-      const user = await prisma.user.create({
-        data: {
-          id: data.id,
-          email: data.email_addresses[0]?.email_address ?? '',
-          name: `${data.first_name ?? ''} ${data.last_name ?? ''}`.trim(),
-          image: data.image_url,
-        },
-      })
-
-      console.log('✅ User created in DB:', user)
-    } catch (err) {
-      console.error('❌ Error creating user:', err)
-      throw err
+    {
+        id: 'sync-user-create'
+    },
+    {
+        event:'clerk/user.created'
+    },
+    async({event})=>{
+        const {data}= event 
+        await   prisma.user.create({
+            data:{
+                id: data.id,
+                email: data.email_addresses[0].email_addresse,
+                name: `${data.first_name} ${data.last_name}`,
+                image:data.image_url
+            }
+        })
     }
-  }
-)
+
+);
 // UPDATE
 export const syncUserUpdate = inngest.createFunction(
   { id: 'sync-user-update' },
