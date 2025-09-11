@@ -1,4 +1,4 @@
-import prisma from "../lib/prisma";
+import prisma from "../";
 import { inngest } from "./client";
 
 
