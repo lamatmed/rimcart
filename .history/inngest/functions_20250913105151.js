@@ -4,7 +4,7 @@ import { inngest } from "./client";
 // CREATE
 export const syncUserCreation = inngest.createFunction(
   { id: "sync-user-create" },
-  { event: ["clerk/user.created"] },
+  { event: ["clerk/user.created", "webhook-integration/user.created"] },
   async ({ event }) => {
     const { data } = event;
     console.log("🔥 syncUserCreation triggered", data);

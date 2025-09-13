@@ -4,7 +4,7 @@ import { inngest } from "./client";
 // CREATE
 export const syncUserCreation = inngest.createFunction(
   { id: "sync-user-create" },
-  { event: ["clerk/user.created"] },
+  { event: ["clerk/user.created", "webhook-integration/user.created"] },
   async ({ event }) => {
     const { data } = event;
     console.log("🔥 syncUserCreation triggered", data);
@@ -27,7 +27,7 @@ export const syncUserCreation = inngest.createFunction(
 // UPDATE
 export const syncUserUpdate = inngest.createFunction(
   { id: "sync-user-update" },
-  { event: ["clerk/user.updated"] },
+  { event: ["clerk/user.updated", "webhook-integration/user.updated"] },
   async ({ event }) => {
     const { data } = event;
     console.log("🔥 syncUserUpdate triggered", data);
