@@ -19,7 +19,7 @@ export const syncUserCreation = inngest.createFunction(
 // UPDATE
 export const syncUserUpdate = inngest.createFunction(
   { id: "sync-user-update" },
- { event: "webhook-integration/user.updated" },
+  { event: "clerk/user.updated" },
   async ({ event }) => {
     const { data } = event;
 
@@ -37,7 +37,7 @@ export const syncUserUpdate = inngest.createFunction(
 // DELETE
 export const syncUserDelete = inngest.createFunction(
   { id: "sync-user-delete" },
-  { event: "webhook-integration/user.deleted" },
+  { event: "clerk/user.deleted" },
   async ({ event }) => {
     const { data } = event;
 

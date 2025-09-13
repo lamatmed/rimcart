@@ -37,7 +37,7 @@ export const syncUserUpdate = inngest.createFunction(
 // DELETE
 export const syncUserDelete = inngest.createFunction(
   { id: "sync-user-delete" },
-  { event: "webhook-integration/user.deleted" },
+  { event: "clerk/user.deleted" },
   async ({ event }) => {
     const { data } = event;
 
