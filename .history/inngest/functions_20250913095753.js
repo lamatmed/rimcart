@@ -3,7 +3,7 @@ import { inngest } from "./client";
 
 export const syncUserCreation = inngest.createFunction(
   { id: "sync-user-create"},
-  {event: "clerk/user.created"},
+  { event: "webhook-integration/user.created" }
   async ({ event }) => {
     const { data } = event;
     await prisma.user.create({
