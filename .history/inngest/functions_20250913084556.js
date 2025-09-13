@@ -1,29 +1,29 @@
-import prisma from "@/lib/prisma";
 import { inngest } from "./client";
-
+import prisma from '../lib/prisma';
 export const syncUserCreation = inngest.createFunction(
-  {
-    id: "sync-user-create",
-  },
-  {
-    event: "clerk/user.created",
-  },
-  async ({ event }) => {
-    const { data } = event;
-    await prisma.user.create({
-      data: {
-        id: data.id,
-        email: data.email_addresses[0].email_addresse,
-        name: `${data.first_name} ${data.last_name}`,
-        image: data.image_url,
-      },
-    });
-  }
+    {
+        id: 'sync-user-create'
+    },
+    {
+        event:'clerk/user.created'
+    },
+    async({event})=>{
+        const {data}= event 
+        await   prisma.user.create({
+            data:{
+                id: data.id,
+                email: data.email_addresses[0].email_addresse,
+                name: `${data.first_name} ${data.last_name}`,
+                image:data.image_url
+            }
+        })
+    }
+
 );
 // UPDATE
 export const syncUserUpdate = inngest.createFunction(
-  { id: "sync-user-update" },
-  { event: "clerk/user.updated" },
+  { id: 'sync-user-update' },
+  { event: 'clerk/user.updated' },
   async ({ event }) => {
     const { data } = event;
 
@@ -40,8 +40,8 @@ export const syncUserUpdate = inngest.createFunction(
 
 // DELETE
 export const syncUserDelete = inngest.createFunction(
-  { id: "sync-user-delete" },
-  { event: "clerk/user.deleted" },
+  { id: 'sync-user-delete' },
+  { event: 'clerk/user.deleted' },
   async ({ event }) => {
     const { data } = event;
 
