@@ -65,22 +65,22 @@ export const syncUserDelete = inngest.createFunction(
   }
 );
 
-// DELETE COUPON ON EXPIRY
- export const deleteCouponOnExpiry = inngest.createFunction(
+export const deleteCouponOnExpiry = inngest.createFunction(
   { id: "delete-coupon-on-expiry" },
-  { event: "app/coupon.expired" }, // 👈 tu peux écrire string au lieu d’array
+  { event: "app/coupon.expired" },
   async ({ event, step }) => {
-    console.log("🚀 Function deleteCouponOnExpiry attached", event);
+    console.log("🚀 Event reçu:", event);
 
     const { data } = event;
-    console.log("🔥 deleteCouponOnExpiry triggered", data);
 
-    const expiryDate = new Date(data.expires_at);
-    await step.sleepUntil("wait-for-expiry", expiryDate);
+    // Pas de sleepUntil → direct suppression
     await step.run("delete-coupon-from-database", async () => {
       await prisma.coupon.delete({ where: { code: data.code } });
-      console.log(`✅ Coupon ${data.code} deleted on expiry`);
+      console.log(`✅ Coupon ${data.code} supprimé après expiration`);
     });
+
+    return { success: true, deleted: data.code };
   }
 );
+
 
