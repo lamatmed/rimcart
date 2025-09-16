@@ -66,7 +66,7 @@ export const syncUserDelete = inngest.createFunction(
 );
 
 // DELETE COUPON ON EXPIRY
- export const deleteCouponOnExpiry = inngest.createFunction(
+// port const deleteCouponOnExpiry = inngest.createFunction(
   { id: "delete-coupon-on-expiry" },
   { event: "app/coupon.expired" }, // 👈 tu peux écrire string au lieu d’array
   async ({ event, step }) => {
