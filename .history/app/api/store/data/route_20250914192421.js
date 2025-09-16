@@ -1,0 +1,17 @@
+
+import { NextResponse } from "next/server"
+
+export async function GET(req){
+    try {
+        const {searchParams} = new URL(req.url)
+        const username = searchParams.get('username').toLowerCase()
+        if(!username){
+           return NextResponse.json({error:'Missing usrname'})
+        }
+     const store = prism
+
+    } catch (error) {
+         console.error(error)
+     return NextResponse.json({error: error.code || error.message},{status:400})
+    }
+}
