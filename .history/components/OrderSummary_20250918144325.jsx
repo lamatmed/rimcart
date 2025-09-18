@@ -1,5 +1,5 @@
 import { PlusIcon, SquarePenIcon, XIcon } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import AddressModal from "./AddressModal";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
@@ -138,12 +138,12 @@ const OrderSummary = ({ totalPrice, items }) => {
                 }
               >
                 <option value="">Select Address</option>
-               {addressList.map((address, index) => (
-    <option key={index} value={index}>
-      {address.name}, {address.city}, {address.state}, {address.zip}
-    </option>
-))}
-
+                {addressList.map((address, index) => (
+                  <option key={index} value={index}>
+                    {address.name}, {address.city}, {address.state},{" "}
+                    {address.zip}
+                  </option>
+                ))}
               </select>
             )}
             <button

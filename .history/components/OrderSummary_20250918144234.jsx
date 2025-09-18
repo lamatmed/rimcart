@@ -1,5 +1,5 @@
 import { PlusIcon, SquarePenIcon, XIcon } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import AddressModal from "./AddressModal";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { Protect, useAuth, useUser } from "@clerk/nextjs";
 import axios from "axios";
 import { fetchCart } from "@/lib/features/cart/cartSlice";
-import { fetchAddress } from "@/lib/features/address/addressSlice";
 
 const OrderSummary = ({ totalPrice, items }) => {
   const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || "$";
@@ -23,11 +22,6 @@ const OrderSummary = ({ totalPrice, items }) => {
   const [coupon, setCoupon] = useState("");
   const { user } = useUser();
   const { getToken } = useAuth();
-  useEffect(() => {
-  if (user) {
-    dispatch(fetchAddress({ getToken }));
-  }
-}, [user, dispatch, getToken]);
   const handleCouponCode = async (event) => {
     event.preventDefault();
     try {
@@ -138,12 +132,12 @@ const OrderSummary = ({ totalPrice, items }) => {
                 }
               >
                 <option value="">Select Address</option>
-               {addressList.map((address, index) => (
-    <option key={index} value={index}>
-      {address.name}, {address.city}, {address.state}, {address.zip}
-    </option>
-))}
-
+                {addressList.map((address, index) => (
+                  <option key={index} value={index}>
+                    {address.name}, {address.city}, {address.state},{" "}
+                    {address.zip}
+                  </option>
+                ))}
               </select>
             )}
             <button
