@@ -40,31 +40,38 @@ export default function CreateStore() {
       },
     });
 
-    console.log("🔍 Seller status:", data);
-
-    if (data?.status) {
+    if (["approved", "rejected", "pending"].includes(data.status)) {
       setStatus(data.status);
       setAlreadySubmitted(true);
 
-      if (data.status === "approved") {
-        setMessage("✅ Votre store a été approuvé !");
-        router.push("/store");
-      } else if (data.status === "rejected") {
-        setMessage("❌ Votre store a été rejeté. Vérifiez vos informations.");
-      } else if (data.status === "pending") {
-        setMessage("⏳ Votre store est en cours de validation...");
+      switch (data.status) {
+        case "approved":
+          setMessage("✅ Votre store a été approuvé !");
+          // Redirection immédiate quand approuvé
+          router.push("/store");
+          break;
+
+        case "rejected":
+          setMessage("❌ Votre store a été rejeté. Vérifiez vos informations.");
+          break;
+
+        case "pending":
+          setMessage("⏳ Votre store est en cours de validation...");
+          break;
+
+        default:
+          setMessage("");
+          break;
       }
     } else {
       setAlreadySubmitted(false);
     }
   } catch (error) {
-    console.error("❌ fetchSellerStatus failed:", error);
     setAlreadySubmitted(false);
   }
 
   setLoading(false);
 };
-
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
