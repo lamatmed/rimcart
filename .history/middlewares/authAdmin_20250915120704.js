@@ -1,3 +1,0 @@
-const  authAdmin = async (user) =>{
-
-}
