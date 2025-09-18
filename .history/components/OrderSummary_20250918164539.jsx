@@ -11,9 +11,9 @@ import { fetchAddress } from "@/lib/features/address/addressSlice";
 
 const OrderSummary = ({ totalPrice, items }) => {
   const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || "$";
+
   const router = useRouter();
   const dispatch = useDispatch();
-
   const addressList = useSelector((state) => state.address.list);
 
   const [paymentMethod, setPaymentMethod] = useState("COD");
@@ -21,18 +21,23 @@ const OrderSummary = ({ totalPrice, items }) => {
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [couponCodeInput, setCouponCodeInput] = useState("");
   const [coupon, setCoupon] = useState("");
-
   const { user } = useUser();
   const { getToken } = useAuth();
 
-  // Charger automatiquement les adresses de l'utilisateur
+  // Charger les adresses du user
   useEffect(() => {
     if (user) {
       dispatch(fetchAddress({ getToken }));
     }
   }, [user, dispatch, getToken]);
 
-  // 🎟️ Vérifier un coupon
+  // ✅ Sélectionner automatiquement la première adresse si dispo
+  useEffect(() => {
+    if (addressList.length > 0 && !selectedAddress) {
+      setSelectedAddress(addressList[0]);
+    }
+  }, [addressList, selectedAddress]);
+
   const handleCouponCode = async (event) => {
     event.preventDefault();
     try {
@@ -42,7 +47,9 @@ const OrderSummary = ({ totalPrice, items }) => {
         "/api/coupon",
         { code: couponCodeInput },
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       setCoupon(data.coupon);
@@ -52,12 +59,15 @@ const OrderSummary = ({ totalPrice, items }) => {
     }
   };
 
-  // 🛒 Passer la commande
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
     try {
-      if (!user) return toast("Please login to place an order");
-      if (!selectedAddress) return toast("Please select an address");
+      if (!user) {
+        return toast("Please login to place an order");
+      }
+      if (!selectedAddress) {
+        return toast("Please select an address");
+      }
 
       const orderData = {
         addressId: selectedAddress.id,
@@ -67,12 +77,12 @@ const OrderSummary = ({ totalPrice, items }) => {
       if (coupon) {
         orderData.couponCode = coupon.code;
       }
-
       const token = await getToken();
       const { data } = await axios.post("/api/orders", orderData, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-
       if (paymentMethod === "STRIPE") {
         window.location.href = data.session.url;
       } else {
@@ -88,8 +98,6 @@ const OrderSummary = ({ totalPrice, items }) => {
   return (
     <div className="w-full max-w-lg lg:max-w-[340px] bg-slate-50/30 border border-slate-200 text-slate-500 text-sm rounded-xl p-7">
       <h2 className="text-xl font-medium text-slate-600">Payment Summary</h2>
-
-      {/* ✅ Méthode de paiement */}
       <p className="text-slate-400 text-xs my-4">Payment Method</p>
       <div className="flex gap-2 items-center">
         <input
@@ -100,7 +108,7 @@ const OrderSummary = ({ totalPrice, items }) => {
           className="accent-gray-500"
         />
         <label htmlFor="COD" className="cursor-pointer">
-          Cash on Delivery
+          COD
         </label>
       </div>
       <div className="flex gap-2 items-center mt-1">
@@ -116,46 +124,45 @@ const OrderSummary = ({ totalPrice, items }) => {
           Stripe Payment
         </label>
       </div>
-
-      {/* ✅ Liste des adresses */}
       <div className="my-4 py-4 border-y border-slate-200 text-slate-400">
-        <p>Addresses</p>
-
-        {addressList.length > 0 ? (
-          <div className="flex flex-col gap-2 mt-2">
-            {addressList.map((address) => (
-              <label
-                key={address.id}
-                className="flex items-center gap-2 cursor-pointer border p-2 rounded hover:bg-slate-100"
-              >
-                <input
-                  type="radio"
-                  name="selectedAddress"
-                  value={address.id}
-                  checked={selectedAddress?.id === address.id}
-                  onChange={() => setSelectedAddress(address)}
-                  className="accent-slate-600"
-                />
-                <span>
-                  <strong>{address.name}</strong>, {address.city},{" "}
-                  {address.state}, {address.zip}
-                </span>
-              </label>
-            ))}
+        <p>Address</p>
+        {selectedAddress ? (
+          <div className="flex gap-2 items-center">
+            <p>
+              {selectedAddress.name}, {selectedAddress.city},{" "}
+              {selectedAddress.state}, {selectedAddress.zip}
+            </p>
+            <SquarePenIcon
+              onClick={() => setSelectedAddress(null)}
+              className="cursor-pointer"
+              size={18}
+            />
           </div>
         ) : (
-          <p className="text-sm text-slate-400 my-2">No address found.</p>
+          <div>
+            {addressList.length > 0 && (
+              <select
+                className="border border-slate-400 p-2 w-full my-3 outline-none rounded"
+                value={selectedAddress ? addressList.indexOf(selectedAddress) : ""}
+                onChange={(e) => setSelectedAddress(addressList[e.target.value])}
+              >
+                <option value="">Select Address</option>
+                {addressList.map((address, index) => (
+                  <option key={index} value={index}>
+                    {address.name}, {address.city}, {address.state}, {address.zip}
+                  </option>
+                ))}
+              </select>
+            )}
+            <button
+              className="flex items-center gap-1 text-slate-600 mt-1"
+              onClick={() => setShowAddressModal(true)}
+            >
+              Add Address <PlusIcon size={18} />
+            </button>
+          </div>
         )}
-
-        <button
-          className="flex items-center gap-1 text-slate-600 mt-3"
-          onClick={() => setShowAddressModal(true)}
-        >
-          Add Address <PlusIcon size={18} />
-        </button>
       </div>
-
-      {/* ✅ Détails du prix */}
       <div className="pb-4 border-b border-slate-200">
         <div className="flex justify-between">
           <div className="flex flex-col gap-1 text-slate-400">
@@ -174,16 +181,12 @@ const OrderSummary = ({ totalPrice, items }) => {
               </Protect>
             </p>
             {coupon && (
-              <p>
-                -
-                {currency}
-                {((coupon.discount / 100) * totalPrice).toFixed(2)}
-              </p>
+              <p>{`-${currency}${((coupon.discount / 100) * totalPrice).toFixed(
+                2
+              )}`}</p>
             )}
           </div>
         </div>
-
-        {/* ✅ Coupon */}
         {!coupon ? (
           <form
             onSubmit={(e) =>
@@ -221,8 +224,6 @@ const OrderSummary = ({ totalPrice, items }) => {
           </div>
         )}
       </div>
-
-      {/* ✅ Total */}
       <div className="flex justify-between py-4">
         <p>Total:</p>
         <p className="font-medium text-right">
@@ -245,18 +246,15 @@ const OrderSummary = ({ totalPrice, items }) => {
           </Protect>
         </p>
       </div>
-
-      {/* ✅ Bouton commande */}
       <button
         onClick={(e) =>
-          toast.promise(handlePlaceOrder(e), { loading: "Placing Order..." })
+          toast.promise(handlePlaceOrder(e), { loading: "placing Order..." })
         }
         className="w-full bg-slate-700 text-white py-2.5 rounded hover:bg-slate-900 active:scale-95 transition-all"
       >
         Place Order
       </button>
 
-      {/* ✅ Modal d'ajout d'adresse */}
       {showAddressModal && (
         <AddressModal setShowAddressModal={setShowAddressModal} />
       )}
