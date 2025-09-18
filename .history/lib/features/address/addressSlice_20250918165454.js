@@ -1,6 +1,5 @@
 import { addressDummyData } from "@/assets/assets";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
 export const fetchAddress = createAsyncThunk(
   "address/fetchAddress",
   async ({ getToken }, thunkAPI) => {
