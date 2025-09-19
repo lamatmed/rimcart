@@ -39,8 +39,8 @@ const Navbar = () => {
           <div className="hidden sm:flex items-center gap-4 lg:gap-8 text-slate-600">
             <Link href="/">Home</Link>
             <Link href="/shop">Shop</Link>
-            <Link href="/">About</Link>
-            <Link href="/">Contact</Link>
+            <Link href="/about">About</Link>
+            <Link href="/contact">Contact</Link>
 
             <form
               onSubmit={handleSearch}

@@ -1,5 +1,5 @@
 "use client";
-import Banner from "@/components/Banner";
+
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useEffect } from "react";
@@ -8,8 +8,10 @@ import { fetchProducts } from "@/lib/features/product/productSlice";
 import { useAuth, useUser } from "@clerk/nextjs";
 import { fetchCart, uploadCart } from "@/lib/features/cart/cartSlice";
 import { fetchAddress } from "@/lib/features/address/addressSlice";
-import { fetchUserRatings } from "@/lib/features/rating/ratingSlice";
 
+
+import { fetchUserRatings } from "@/lib/features/rating/ratingSlice";
+import Banner from "@/components/Banner";
 export default function PublicLayout({ children }) {
   const { user } = useUser();
   const { getToken } = useAuth();
