@@ -8,7 +8,6 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 
 export default function StoreAddProduct() {
-
   const { getToken } = useAuth();
   const categories = [
     "Electronics",
@@ -32,11 +31,51 @@ export default function StoreAddProduct() {
     category: "",
   });
   const [loading, setLoading] = useState(false);
-
+  const [aiUsed, setAiUsed] = useState(false);
   const onChangeHandler = (e) => {
     setProductInfo({ ...productInfo, [e.target.name]: e.target.value });
   };
 
+  const handleImageUpload = async (key, file) => {
+    setImages((prev) => ({ ...prev, [key]: file }));
+    if (key === "1" && file && !aiUsed) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = async () => {
+        const base64String = reader.result.split(",")[1];
+        const mimeType = file.type;
+        const token = await getToken();
+        try {
+          await toast.promise(
+            axios.post(
+              "/api/store/ai",
+              { base64Image: base64String ,mimeType },
+              { headers: { Authorization: `Bearer ${token}` } }
+            ),
+            {
+              loading: "Analyze image with AI...",
+              success: (res)=>{
+                const data = res.data
+                if(data.name && data.description){
+                  setProductInfo(prev =>({...prev,
+                    name:data.name,
+                    description:data.description
+                  }))
+                  setAiUsed(true)
+                  return "Ai filled product  info .."
+                }
+                 return "Ai could not analyze the image"
+              },
+              error:(err)=>err?.response?.data?.error || err.message
+            }
+          );
+        } catch (error) {
+          console.error(error);
+          toast.error("AI failed to analyze image");
+        }
+      };
+    }
+  };
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     try {
@@ -71,7 +110,7 @@ export default function StoreAddProduct() {
         price: 0,
         category: "",
       });
-      setImages({ 1: null, 2: null, 3: null, 4: null })
+      setImages({ 1: null, 2: null, 3: null, 4: null });
     } catch (error) {
       console.error(error);
     } finally {
@@ -81,9 +120,14 @@ export default function StoreAddProduct() {
 
   return (
     <form
-      onSubmit={(e) =>
-        toast.promise(onSubmitHandler(e), { loading: "Adding Product..." })
-      }
+      onSubmit={(e) => {
+        e.preventDefault();
+        toast.promise(onSubmitHandler(e), {
+          loading: "Adding Product...",
+          success: "Product added successfully",
+          error: "Failed to add product",
+        });
+      }}
       className="text-slate-500 mb-28"
     >
       <h1 className="text-2xl">
@@ -110,7 +154,7 @@ export default function StoreAddProduct() {
               accept="image/*"
               id={`images${key}`}
               onChange={(e) =>
-                setImages({ ...images, [key]: e.target.files[0] })
+               handleImageUpload(key,e.target.files[0])
               }
               hidden
             />
